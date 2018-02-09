@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <string.h>
 
 // Pour compiler le fichier : gcc glo2001-h18-tp1-q4-threads.c -o tp1 -lpthread
 #define N 8
@@ -20,18 +21,19 @@ typedef struct {
 /* Voici la fonction correspondant a chaque thread - à compléter */
 void  *ProduitScalaire(void *data) {
     ParametresThread *pParam = (ParametresThread*)data;
-    /*
     double res = 0;
-    for (int i = 0; i < M; i++){
-    	res += pParam.Vecteur1[i] + pParam.Vecteur2[i];
+    int i;
+    for (i = 0; i < M; i++){
+    	printf("%f\n", pParam->Vecteur1[i]);
+    	printf("%f\n", pParam->Vecteur2[i]);
+    	res += pParam->Vecteur1[i] * pParam->Vecteur2[i];
     	printf("Inter res: %f\n", res);
     }
 
     printf("Total res: %f\n", res);
 
-    pParam.pResultat = &res;
-    printf("pRes: %f\n", *pParam.pResultat);
-    */
+    pParam->pResultat = &res;
+    printf("pRes: %f\n", *pParam->pResultat);
 
     pthread_exit(NULL);
 }
@@ -76,12 +78,23 @@ int main(int argc, char *argv[]) {
     //AfficherMatrice(&H[0][0],M,P);
     // Votre code de creation de thread commence ici...
 
-    double *ptr_test;
-    double v1_test[] = {1,2,3,4,5,6,7,8,9,10};
-    double v2_test[] = {1,2,3,4,5,6,7,8,9,10};
+    double index_test = 0;
+    double *ptr_test = &index_test;
+    double v1_test[10] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
+    double v2_test[10] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
     ParametresThread test = {0, M, *v1_test, *v2_test, *ptr_test};
 
-    pthread_create(&threads[0], NULL, ProduitScalaire, (void *) *ParametresThread);
+    for (int i = 0; i < M; i++){
+    	test.Vecteur1[i] = v1_test[i];
+    	test.Vecteur2[i] = v2_test[i];
+    }
+
+    
+    for (int z = 0; z < M; z++){
+    	printf("vect1 %f\n", test.Vecteur1[z]);
+    }
+    pthread_create(&threads[0], NULL, ProduitScalaire, (void *) &test);
+    printf("ptr_test %f\n", *ptr_test);
 
 
 
