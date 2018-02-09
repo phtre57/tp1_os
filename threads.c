@@ -90,7 +90,8 @@ int main(int argc, char *argv[]) {
     	test.Vecteur2[i] = v2_test[i];
     }
     
-    int status = pthread_create(&threads[0], NULL, ProduitScalaire, (void *) &test);
+    pthread_create(&threads[0], NULL, ProduitScalaire, (void *) &test);
+    pthread_join(threads[0], NULL);
 
     for (int i = 0; i < 5; i++){
     	printf("index_test res %f\n", index_test[i]);
