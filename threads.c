@@ -21,17 +21,11 @@ typedef struct {
 /* Voici la fonction correspondant a chaque thread - à compléter */
 void  *ProduitScalaire(void *data) {
     ParametresThread *pParam = (ParametresThread*)data;
-    printf("pRes_ptr_start %p\n", pParam->pResultat);
     *pParam->pResultat = 0;
     int i;
     for (i = 0; i < M; i++){
     	*pParam->pResultat += pParam->Vecteur1[i] * pParam->Vecteur2[i];
     }
-
-    printf("Total res: %f\n", *pParam->pResultat);
-
-    printf("pParam_ptr_end %p\n", pParam->pResultat);
-    printf("pRes: %f\n", *pParam->pResultat);
 
     pthread_exit(NULL);
 }
@@ -59,13 +53,15 @@ int main(int argc, char *argv[]) {
 
     pthread_t threads[N_THREADS];
 
+    ParametresThread myParameters[N_THREADS];
+
     // Initialisation de la premiere matrice
     for (i=0;i<N;i++) {
         for (j=0; j<M; j++) {
             G[i][j] = (double)i + (double)j*0.01;
         }
     }
-    //AfficherMatrice(&G[0][0],N,M);
+    AfficherMatrice(&G[0][0],N,M);
 
     // Initialisation de la deuxieme matrice
     for (i=0;i<M;i++) {
@@ -73,9 +69,11 @@ int main(int argc, char *argv[]) {
             H[i][j] = (double)i + (double)j*0.01;
         }
     }
-    //AfficherMatrice(&H[0][0],M,P);
+    AfficherMatrice(&H[0][0],M,P);
     // Votre code de creation de thread commence ici...
 
+    //test de la struct
+    /*
     double index_test[10] = {1,1,1,1,1};
     double *ptr_test = &index_test[2];
     double v1_test[10] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
@@ -89,16 +87,28 @@ int main(int argc, char *argv[]) {
     	test.Vecteur1[i] = v1_test[i];
     	test.Vecteur2[i] = v2_test[i];
     }
-    
-    pthread_create(&threads[0], NULL, ProduitScalaire, (void *) &test);
-    pthread_join(threads[0], NULL);
+    */
 
-    for (int i = 0; i < 5; i++){
-    	printf("index_test res %f\n", index_test[i]);
+    for (int i = 0; i < N_THREADS; i++){
+    	myParameters[i].iThread = threads[i];
+    	myParameters[i].Longueur = M;
+    	int n_index = i%N;
+    	int p_index = i%P;
+    	myParameters[i].pResultat = &R[n_index][p_index];
+    	for (int j = 0; j < M; j++){
+    		myParameters[i].Vecteur1[j] = G[n_index][j];
+    		myParameters[i].Vecteur2[j] = H[j][p_index];
+    	}
     }
+
+    for (int i = 0; i < N_THREADS; i++){
+    	pthread_create(&threads[i], NULL, ProduitScalaire, (void *) &myParameters[i]);
+    	pthread_join(threads[i], NULL);
+    }
+
 
     // Et se termine essentiellement ici...
     printf("Main(): Tous les threads ont termines! On affiche la reponse...\n");
-    //AfficherMatrice(&R[0][0],N,P);
+    AfficherMatrice(&R[0][0],N,P);
     exit(0);
 }
