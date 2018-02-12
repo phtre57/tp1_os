@@ -89,11 +89,14 @@ int main(int argc, char *argv[]) {
     }
     */
 
+    int n_index = 0;
     for (int i = 0; i < N_THREADS; i++){
     	myParameters[i].iThread = threads[i];
     	myParameters[i].Longueur = M;
-    	int n_index = i%N;
     	int p_index = i%P;
+    	if (p_index == 0 && i != 0){
+    		n_index += 1;
+    	}
     	myParameters[i].pResultat = &R[n_index][p_index];
     	for (int j = 0; j < M; j++){
     		myParameters[i].Vecteur1[j] = G[n_index][j];
